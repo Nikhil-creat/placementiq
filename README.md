@@ -3,6 +3,16 @@
 AI-powered mock interview trainer for Indian tech placements. Generates resume-aware
 interview questions and scores answers instantly using Groq (free, fast Llama models).
 
+## Designed and Developed by 
+# **NIKHIL CHARY SRIRAMOJU**
+BTech CSE (Final Year)
+
+- GitHub: [Nikhil-creat](https://github.com/Nikhil-creat)
+- LinkedIn: [nikhil-chary-sriramoju](https://in.linkedin.com/in/nikhil-chary-sriramoju-95041b38a)
+- Email: sriramojunikhil66@gmail.com
+- Instagram: [@nikhil__sriramoju](https://www.instagram.com/nikhil__sriramoju)
+- Facebook: [Profile](https://www.facebook.com/profile.php?id=100079201124141)
+
 ## Structure
 - `index.html` — landing / marketing page (this is what people see first)
 - `app.html` — the actual tool (resume upload → mock interview → scoring)
