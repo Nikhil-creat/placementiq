@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlacementIQ - AI Interview Prep</title>
+<style>
+  :root{
+    --bg:#0f1115; --card:#171a21; --accent:#6ee7b7; --accent2:#60a5fa;
+    --text:#e5e7eb; --muted:#9ca3af; --border:#262a33;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:var(--bg);color:var(--text);}
+  header{padding:24px 20px;text-align:center;border-bottom:1px solid var(--border);}
+  header h1{margin:0;font-size:1.6rem;}
+  header h1 span{color:var(--accent);}
+  header p{color:var(--muted);margin:6px 0 0;font-size:.9rem;}
+  .wrap{max-width:760px;margin:0 auto;padding:20px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+  label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:6px;}
+  input[type=text],input[type=password],textarea,select{
+    width:100%;background:#0f1115;color:var(--text);border:1px solid var(--border);
+    border-radius:8px;padding:10px 12px;font-size:.95rem;margin-bottom:14px;font-family:inherit;
+  }
+  textarea{min-height:120px;resize:vertical;}
+  button{
+    background:var(--accent);color:#0f1115;border:none;border-radius:8px;
+    padding:10px 18px;font-weight:600;cursor:pointer;font-size:.95rem;
+  }
+  button:disabled{opacity:.5;cursor:not-allowed;}
+  button.secondary{background:transparent;border:1px solid var(--border);color:var(--text);}
+  .q-block{border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+  .q-block h3{margin:0 0 8px;font-size:1rem;color:var(--accent2);}
+  .badge{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:20px;
+    background:#1f2937;color:var(--muted);margin-left:6px;}
+  .feedback{margin-top:10px;padding:10px;background:#0f1115;border-radius:8px;font-size:.9rem;
+    border-left:3px solid var(--accent);}
+  .score{font-weight:700;color:var(--accent);}
+  .muted{color:var(--muted);font-size:.85rem;}
+  .footer{text-align:center;color:var(--muted);font-size:.8rem;padding:30px 0;}
+  .hidden{display:none;}
+  .spinner{border:2px solid var(--border);border-top:2px solid var(--accent);border-radius:50%;
+    width:16px;height:16px;display:inline-block;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Placement<span>IQ</span></h1>
+  <p>AI mock interviews tailored to your resume — free, private, in your browser</p>
+</header>
+
+<div class="wrap">
+
+  <div class="card" id="setupCard">
+    <label for="apiKey">Claude API Key (stored only in your browser, never sent anywhere else)</label>
+    <input type="password" id="apiKey" placeholder="sk-ant-...">
+    <p class="muted" style="margin-top:-8px;margin-bottom:14px;">Get a free key at console.anthropic.com. This app calls Claude directly from your browser — no server, no data stored by us.</p>
+
+    <label for="role">Target Role</label>
+    <select id="role">
+      <option>Software Engineer (Product Company)</option>
+      <option>Software Engineer (Service Company - TCS/Infosys/Wipro)</option>
+      <option>Data Analyst</option>
+      <option>Frontend Developer</option>
+      <option>Backend Developer</option>
+      <option>Full Stack Developer</option>
+    </select>
+
+    <label for="resume">Paste your resume text</label>
+    <textarea id="resume" placeholder="Paste your resume content here (skills, projects, experience)..."></textarea>
+
+    <button id="generateBtn" onclick="generateQuestions()">Generate Mock Interview</button>
+    <span id="genStatus" class="muted"></span>
+  </div>
+
+  <div id="interviewSection" class="hidden">
+    <div class="card">
+      <strong>Mock Interview in Progress</strong>
+      <p class="muted" id="progressLabel">Question 1 of 5</p>
+    </div>
+    <div id="questionsContainer"></div>
+    <div class="card" id="summaryCard" style="display:none;">
+      <h3>Session Summary</h3>
+      <p id="summaryText"></p>
+      <button class="secondary" onclick="location.reload()">Start New Session</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">PlacementIQ Phase 1 · Built for placement season · Your API key never leaves your browser</div>
+
+<script>
+let questions = [];
+let currentAnswers = {};
+
+async function callClaude(apiKey, systemPrompt, userPrompt) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1500,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userPrompt }]
+    })
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error("API error: " + res.status + " - " + err);
+  }
+  const data = await res.json();
+  return data.content.map(b => b.text || "").join("\n");
+}
+
+function extractJSON(text) {
+  const cleaned = text.replace(/```json|```/g, "").trim();
+  const start = cleaned.indexOf("[") !== -1 ? cleaned.indexOf("[") : cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("]") !== -1 ? cleaned.lastIndexOf("]") + 1 : cleaned.lastIndexOf("}") + 1;
+  return JSON.parse(cleaned.slice(start, end));
+}
+
+async function generateQuestions() {
+  const apiKey = document.getElementById("apiKey").value.trim();
+  const role = document.getElementById("role").value;
+  const resume = document.getElementById("resume").value.trim();
+  const status = document.getElementById("genStatus");
+  const btn = document.getElementById("generateBtn");
+
+  if (!apiKey) { alert("Please enter your Claude API key."); return; }
+  if (!resume) { alert("Please paste your resume text."); return; }
+
+  btn.disabled = true;
+  status.innerHTML = '<span class="spinner"></span> Generating questions...';
+
+  try {
+    const sys = "You are an expert technical interviewer for Indian tech placements. Return ONLY a JSON array, no preamble, no markdown fences.";
+    const prompt = `Based on this resume, generate exactly 5 interview questions for the role "${role}": 2 technical (specific to their listed skills/projects), 2 HR/behavioral, 1 resume-probing question about a specific project they mentioned.
+Return as JSON array of objects: [{"type": "Technical"|"HR"|"Resume", "question": "..."}]
+
+Resume:
+${resume}`;
+
+    const raw = await callClaude(apiKey, sys, prompt);
+    questions = extractJSON(raw);
+
+    document.getElementById("setupCard").classList.add("hidden");
+    document.getElementById("interviewSection").classList.remove("hidden");
+    renderQuestions();
+  } catch (e) {
+    status.textContent = "";
+    alert("Something went wrong: " + e.message);
+  } finally {
+    btn.disabled = false;
+    status.innerHTML = "";
+  }
+}
+
+function renderQuestions() {
+  const container = document.getElementById("questionsContainer");
+  container.innerHTML = "";
+  questions.forEach((q, i) => {
+    const block = document.createElement("div");
+    block.className = "q-block";
+    block.innerHTML = `
+      <h3>Q${i+1}. ${q.question} <span class="badge">${q.type}</span></h3>
+      <textarea id="answer-${i}" placeholder="Type your answer here..."></textarea>
+      <button onclick="submitAnswer(${i})">Submit Answer</button>
+      <div id="feedback-${i}" class="feedback hidden"></div>
+    `;
+    container.appendChild(block);
+  });
+}
+
+async function submitAnswer(index) {
+  const apiKey = document.getElementById("apiKey").value.trim();
+  const answer = document.getElementById(`answer-${index}`).value.trim();
+  const feedbackDiv = document.getElementById(`feedback-${index}`);
+  if (!answer) { alert("Please write an answer first."); return; }
+
+  feedbackDiv.classList.remove("hidden");
+  feedbackDiv.innerHTML = '<span class="spinner"></span> Evaluating...';
+
+  try {
+    const sys = "You are a strict but constructive technical interviewer giving feedback. Return ONLY JSON, no markdown.";
+    const prompt = `Question: ${questions[index].question}
+Candidate's answer: ${answer}
+
+Evaluate this answer. Return JSON: {"score": <0-10>, "feedback": "<2-3 sentence constructive feedback>", "improvement": "<one specific tip>"}`;
+
+    const raw = await callClaude(apiKey, sys, prompt);
+    const result = extractJSON(raw);
+    currentAnswers[index] = result;
+
+    feedbackDiv.innerHTML = `<span class="score">Score: ${result.score}/10</span><br>${result.feedback}<br><em>Tip: ${result.improvement}</em>`;
+
+    if (Object.keys(currentAnswers).length === questions.length) {
+      showSummary();
+    }
+  } catch (e) {
+    feedbackDiv.innerHTML = "Error evaluating answer: " + e.message;
+  }
+}
+
+function showSummary() {
+  const scores = Object.values(currentAnswers).map(a => a.score);
+  const avg = (scores.reduce((a,b) => a+b, 0) / scores.length).toFixed(1);
+  document.getElementById("summaryCard").style.display = "block";
+  document.getElementById("summaryText").innerHTML =
+    `Average score: <span class="score">${avg}/10</span> across ${scores.length} questions.<br>Review the tips above and try again to improve your weak areas.`;
+}
+</script>
+
+</body>
+</html>
