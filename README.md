@@ -1,24 +1,14 @@
 # PlacementIQ
 
 AI-powered mock interview trainer for Indian tech placements. Generates resume-aware
-interview questions and scores answers instantly using Claude.
-
-## Designed and Developed by 
-# **NIKHIL CHARY SRIRAMOJU**
-BTech CSE (Final Year)
-
-- GitHub: [Nikhil-creat](https://github.com/Nikhil-creat)
-- LinkedIn: [nikhil-chary-sriramoju](https://in.linkedin.com/in/nikhil-chary-sriramoju-95041b38a)
-- Email: sriramojunikhil66@gmail.com
-- Instagram: [@nikhil__sriramoju](https://www.instagram.com/nikhil__sriramoju)
-- Facebook: [Profile](https://www.facebook.com/profile.php?id=100079201124141)
+interview questions and scores answers instantly using Groq (free, fast Llama models).
 
 ## Structure
 - `index.html` — landing / marketing page (this is what people see first)
 - `app.html` — the actual tool (resume upload → mock interview → scoring)
 
 ## How it works (Phase 1 — no backend)
-The app calls the Claude API **directly from the user's browser** using their own
+The app calls the Groq API **directly from the user's browser** using their own
 API key, which is stored only in their browser session. This is why it works on
 GitHub Pages with **zero hosting cost** — there is no server.
 
@@ -55,7 +45,7 @@ GitHub Pages with **zero hosting cost** — there is no server.
 - This validates people will actually pay BEFORE you build a full backend.
 
 ### Stage 3: Real SaaS (Phase 2 build)
-- Add Supabase auth + a credits table so YOU hold one Claude API key server-side
+- Add Supabase auth + a credits table so YOU hold one Groq API key server-side
   and users no longer need their own.
 - Add Razorpay Checkout integration for self-serve payment (no manual work).
 - Deploy the backend as a Supabase Edge Function (free tier) — GitHub Pages still

@@ -55,9 +55,9 @@
 <div class="wrap">
 
   <div class="card" id="setupCard">
-    <label for="apiKey">Claude API Key (stored only in your browser, never sent anywhere else)</label>
-    <input type="password" id="apiKey" placeholder="sk-ant-...">
-    <p class="muted" style="margin-top:-8px;margin-bottom:14px;">Get a free key at console.anthropic.com. This app calls Claude directly from your browser — no server, no data stored by us.</p>
+    <label for="apiKey">Groq API Key (stored only in your browser, never sent anywhere else)</label>
+    <input type="password" id="apiKey" placeholder="gsk_...">
+    <p class="muted" style="margin-top:-8px;margin-bottom:14px;">Get a <strong>free</strong> key at <a href="https://console.groq.com/keys" target="_blank" style="color:var(--accent2);">console.groq.com/keys</a> (no card needed). This app calls Groq directly from your browser — no server, no data stored by us.</p>
 
     <label for="role">Target Role</label>
     <select id="role">
@@ -98,19 +98,19 @@ let questions = [];
 let currentAnswers = {};
 
 async function callClaude(apiKey, systemPrompt, userPrompt) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
+      "Authorization": "Bearer " + apiKey
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-6",
+      model: "llama-3.3-70b-versatile",
       max_tokens: 1500,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }]
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ]
     })
   });
   if (!res.ok) {
@@ -118,7 +118,7 @@ async function callClaude(apiKey, systemPrompt, userPrompt) {
     throw new Error("API error: " + res.status + " - " + err);
   }
   const data = await res.json();
-  return data.content.map(b => b.text || "").join("\n");
+  return data.choices[0].message.content;
 }
 
 function extractJSON(text) {
@@ -135,7 +135,7 @@ async function generateQuestions() {
   const status = document.getElementById("genStatus");
   const btn = document.getElementById("generateBtn");
 
-  if (!apiKey) { alert("Please enter your Claude API key."); return; }
+  if (!apiKey) { alert("Please enter your Groq API key."); return; }
   if (!resume) { alert("Please paste your resume text."); return; }
 
   btn.disabled = true;
