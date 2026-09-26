@@ -28,7 +28,33 @@
   .plan .price{font-size:1.6rem;font-weight:700;color:var(--accent);margin:10px 0;}
   .plan ul{list-style:none;padding:0;color:var(--muted);font-size:.85rem;text-align:left;}
   .plan ul li{margin-bottom:8px;}
-  footer{text-align:center;color:var(--muted);font-size:.8rem;padding:40px 0;}
+  footer{text-align:center;color:var(--muted);font-size:.8rem;padding:40px 0 10px;}
+  .dev-card{
+    max-width:640px;margin:20px auto 60px;padding:24px;
+    background:linear-gradient(135deg,var(--card) 0%,#1c2130 100%);
+    border:1px solid var(--border);border-radius:16px;
+    display:flex;gap:18px;align-items:flex-start;
+  }
+  .dev-avatar{
+    flex-shrink:0;width:56px;height:56px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#0f1115;font-weight:800;font-size:1.15rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .dev-info h3{margin:0 0 4px;font-size:1.05rem;font-weight:600;color:var(--text);}
+  .dev-info h3 span{color:var(--accent);}
+  .dev-role{margin:0 0 8px;font-size:.85rem;color:var(--accent2);font-weight:600;}
+  .dev-bio{margin:0 0 14px;font-size:.85rem;color:var(--muted);line-height:1.5;}
+  .dev-links{display:flex;gap:14px;flex-wrap:wrap;}
+  .dev-links a{
+    font-size:.82rem;color:var(--text);text-decoration:none;
+    border:1px solid var(--border);padding:5px 12px;border-radius:20px;
+  }
+  .dev-links a:hover{border-color:var(--accent);color:var(--accent);}
+  @media (max-width:480px){
+    .dev-card{flex-direction:column;align-items:center;text-align:center;}
+    .dev-links{justify-content:center;}
+  }
 </style>
 </head>
 <body>
@@ -83,6 +109,21 @@
 </div>
 
 <footer>Built by Nikhil Chary Sriramoju · <a href="https://github.com/Nikhil-creat" style="color:var(--muted);">GitHub</a></footer>
+
+<div class="dev-card">
+  <div class="dev-avatar">NS</div>
+  <div class="dev-info">
+    <h3>Designed &amp; Developed by <span>Nikhil Chary Sriramoju</span></h3>
+    <p class="dev-role">BTech CSE (Final Year) · Full-Stack &amp; AI Systems Developer</p>
+    <p class="dev-bio">Building AI-powered tools for real-world problems — from resume-aware interview trainers to autonomous agentic systems. Open to freelance, internship and collaboration opportunities.</p>
+    <div class="dev-links">
+      <a href="https://github.com/Nikhil-creat" target="_blank">GitHub</a>
+      <a href="https://in.linkedin.com/in/nikhil-chary-sriramoju-95041b38a" target="_blank">LinkedIn</a>
+      <a href="mailto:sriramojunikhil66@gmail.com">Email</a>
+      <a href="tel:+916300556301">Call</a>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
